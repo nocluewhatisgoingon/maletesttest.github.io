@@ -1098,39 +1098,27 @@ function init()
 
 
 
+
 function moveColumns() {
-    let leftCol = document.querySelector(".leftcol");
-    let centerCol = document.querySelector(".centercol");
-    let rightCol = document.querySelector(".rightcol");
-    let wrapper = document.querySelector(".wrapper");
+let leftCol = document.querySelector(".leftcol");
+let centerCol = document.querySelector(".centercol");
+let rightCol = document.querySelector(".rightcol");
+let wrapper = document.querySelector(".wrapper");
 
-    wrapper.appendChild(leftCol);
-    wrapper.appendChild(rightCol);
-  }
+  wrapper.appendChild(leftCol);
+  wrapper.appendChild(rightCol);
+}
 
-
-
-
-
-
-// Get the elements for the center, right, and left columns
-const centerCol = document.querySelector('.center-col');
-const rightCol = document.querySelector('.right-col');
-const leftCol = document.querySelector('.left-col');
-
-// Get the button element
 const moveColsBtn = document.querySelector('#move-cols-btn');
 
-// Add a click event listener to the button
 moveColsBtn.addEventListener('click', () => {
-  // Check if the right and left columns are already below the center column
-  if (rightCol.nextSibling === centerCol || leftCol.nextSibling === centerCol) {
-    return; // Exit if they are already in place
-  }
-
-  // Move the right and left columns below the center column
-  centerCol.parentNode.insertBefore(rightCol, centerCol.nextSibling);
-  centerCol.parentNode.insertBefore(leftCol, centerCol.nextSibling);
+  moveColumns();
 });
+
+
+
+
+
+
 
 init();
