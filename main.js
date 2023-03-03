@@ -1095,6 +1095,24 @@ function init()
 	}
 }
 
+
+
+
+function moveColumns() {
+    let leftCol = document.querySelector(".leftcol");
+    let centerCol = document.querySelector(".centercol");
+    let rightCol = document.querySelector(".rightcol");
+    let wrapper = document.querySelector(".wrapper");
+
+    wrapper.appendChild(leftCol);
+    wrapper.appendChild(rightCol);
+  }
+
+
+
+
+
+
 // Get the elements for the center, right, and left columns
 const centerCol = document.querySelector('.center-col');
 const rightCol = document.querySelector('.right-col');
