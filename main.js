@@ -1099,22 +1099,23 @@ function init()
 
 
 
-function moveColumns() {
-let leftCol = document.querySelector(".leftcol");
-let centerCol = document.querySelector(".centercol");
-let rightCol = document.querySelector(".rightcol");
-let wrapper = document.querySelector(".wrapper");
+const moveColsBtn = document.querySelector("#move-cols-btn");
 
-  wrapper.appendChild(leftCol);
-  wrapper.appendChild(rightCol);
-}
+moveColsBtn.addEventListener("click", function() {
+  const wrapper = document.querySelector(".wrapper");
+  const centerCol = document.querySelector(".centercol");
+  const leftCol = document.querySelector(".leftcol");
+  const rightCol = document.querySelector(".rightcol");
 
-const moveColsBtn = document.querySelector('#move-cols-btn');
+  // Only move columns if they are not already in the correct order
+  if (leftCol.nextElementSibling !== centerCol) {
+    wrapper.insertBefore(leftCol, centerCol);
+  }
 
-moveColsBtn.addEventListener('click', () => {
-  moveColumns();
+  if (rightCol.previousElementSibling !== centerCol) {
+    wrapper.insertBefore(rightCol, centerCol.nextElementSibling);
+  }
 });
-
 
 
 
