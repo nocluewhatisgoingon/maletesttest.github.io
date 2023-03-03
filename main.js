@@ -1095,4 +1095,18 @@ function init()
 	}
 }
 
+
+
+
+
+
+const changeHtmlBtn = document.querySelector('#change-html-btn');
+changeHtmlBtn.addEventListener('click', () => {
+  document.documentElement.innerHTML = 
+
+
+
+
+
+
 init();
