@@ -1,23 +1,8 @@
-
 const p_status = document.getElementById("p_status");
 const p_fen = document.getElementById("p_fen");
 const p_pgn = document.getElementById("p_pgn");
 
-const d_mainmenu = document.getElementById("d_mainmenu");
-const d_localoptions = document.getElementById("d_localoptions");
-const d_botoptions = document.getElementById("d_botoptions");
-const d_hostoptions = document.getElementById("d_hostoptions");
-const d_joinoptions = document.getElementById("d_joinoptions");
-const d_working = document.getElementById("d_working");
-const in_code = document.getElementById("in_code");
-const in_local_time_inital = document.getElementById("in_local_time_inital");
-const in_local_time_increment = document.getElementById("in_local_time_increment");
-const in_bot_time_inital = document.getElementById("in_bot_time_inital");
-const in_bot_time_increment = document.getElementById("in_bot_time_increment");
-const in_host_time_inital = document.getElementById("in_host_time_inital");
-const in_host_time_increment = document.getElementById("in_host_time_increment");
-const btn_join = document.getElementById("btn_join");
-const h1_title = document.getElementById("h1_title");
+
 
 const board_darkcolor = "#501010";
 const board_lightcolor = "#c0c0e0";
@@ -28,24 +13,6 @@ const board_promote_triangle = 15;
 const board_promote_margin = 5;
 
 const board_promotionalpha = 0.6;
-
-var board_width = 512;
-var board_height = 512;
-var board_offx = 50;
-var board_offy = 100;
-
-var peer_host;
-var peer_self_id;
-var peer_client_connection;
-var peer_connections = new Array();
-
-const GAMETYPE_LOCAL = 0;
-const GAMETYPE_BOT = 1;
-const GAMETYPE_HOST = 2;
-const GAMETYPE_JOIN = 3;
-const GAMETYPE_SPEC = 4;
-
-var gametype = 0;
 
 const GAMESTAT_WHITE_TO_PLAY = 0;
 const GAMESTAT_BLACK_TO_PLAY = 1;
@@ -101,6 +68,11 @@ const DEBUG = 1;
 var board_canvas;
 var board_ctx;
 
+var board_width = 512;
+var board_height = 512;
+var board_offx = 50;
+var board_offy = 100;
+
 var images = {};
 var loading_images = 0;
 var loaded_images = 0;
@@ -110,91 +82,18 @@ var mouse_y = 0;
 
 var mouse_button = false;
 
-const MENU_GAMING = 0;
-const MENU_MAINMENU = 1;
-const MENU_LOCALOPTIONS = 2;
-const MENU_BOTOPTIONS = 3;
-const MENU_HOSTOPTIONS = 4;
-const MENU_JOINOPTIONS = 5;
-const MENU_WORKING = 6;
-
-var menu = MENU_MAINMENU;
-
 var board;
 
 var stockfish;
 
-function make_id()
-{
-	const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	let result = "";
-	let counter = 0;
-	while (counter < 6)
-	{
-		result += characters.charAt(Math.floor(Math.random() * characters.length));
-		counter += 1;
-	}
-	return result;
-}
 
-function check_id(id)
-{
-	const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	if (id.length != 6)
-	{
-		return 0;
-	}
-	for (let i = 0; i < id.length; i++)
-	{
-		if (!characters.includes(id.charAt(i)))
-		{
-			return 0;
-		}
-	}
-	return 1;
-}
+
+
 
 function encode_coordinates(x, y)
 {
 	const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 	return files[x] + (y + 1);
-}
-
-function encode_file(x)
-{
-	const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
-	return files[x];
-}
-
-function format_time(ms)
-{
-	if (ms > 1000*60*60)
-	{
-		return String(Math.floor(ms/1000/60/60)).padStart(2, '0') + ":" + String(Math.floor(ms/1000/60) % 60).padStart(2, '0') + ":" + String(Math.floor(ms/1000) % 60).padStart(2, '0');
-	}
-	else
-	{
-		return String(Math.floor(ms/1000/60) % 60).padStart(2, '0') + ":" + String(Math.floor(ms/1000) % 60).padStart(2, '0');
-	}
-}
-
-function parse_time(string)
-{
-	const words = string.split(":").reverse();
-	var ms = 0;
-	if (words.length >= 1)
-	{
-		ms += 1000*Number(words[0]);
-	}
-	if (words.length >= 2)
-	{
-		ms += 1000*60*Number(words[1]);
-	}
-	if (words.length >= 3)
-	{
-		ms += 1000*60*60*Number(words[2]);
-	}
-	return ms;
 }
 
 class Piece
@@ -213,8 +112,6 @@ class Piece
 	
 	draw(board)
 	{
-		const w = images["pieces"].width;
-		const h = images["pieces"].height;
 		var bx = this.x;
 		var by = this.y;
 		if (board.facing_side == SIDE_WHITE)
@@ -228,56 +125,15 @@ class Piece
 		if (this.is_lifted)
 		{
 			board_ctx.globalAlpha = 0.4;
-			board_ctx.drawImage(images["pieces"], 
-				this.piece * w / 6, 
-				this.side * h / 2, 
-				w / 6, 
-				h / 2, 
-				bx*board_width/8 + board_offx, 
-				by*board_height/8 + board_offy, 
-				board_width/8, 
-				board_height/8);
+			board_ctx.drawImage(images["pieces"], this.piece * 32, this.side * 32, 32, 32, bx*board_width/8 + board_offx, by*board_height/8 + board_offy, board_width/8, board_height/8);
 			board_ctx.globalAlpha = 0.4;
-			board_ctx.drawImage(images["pieces"], 
-				this.piece * w / 6, 
-				this.side * h / 2, 
-				w / 6, 
-				h / 2, 
-				mouse_x + this.grab_offx, 
-				mouse_y + this.grab_offy,
-				board_width/8, 
-				board_height/8);
+			board_ctx.drawImage(images["pieces"], this.piece * 32, this.side * 32, 32, 32, mouse_x + this.grab_offx, mouse_y + this.grab_offy, board_width/8, board_height/8);
 			board_ctx.globalAlpha = 1;
 		}
 		else
 		{
-			board_ctx.globalAlpha = 1;
-			board_ctx.drawImage(images["pieces"], 
-				this.piece * w / 6, 
-				this.side * h / 2, 
-				w / 6, 
-				h / 2, 
-				bx*board_width/8 + board_offx, 
-				by*board_height/8 + board_offy, 
-				board_width/8, 
-				board_height/8);
-		}
-	}
-
-	draw_legal(board)
-	{
-		if (this.is_lifted)
-		{
-			board_ctx.globalAlpha = 0.4;
-			board_ctx.fillStyle = "black";
-			for (var i = 0; i < this.legalmoves.length; i++)
-			{
-				board_ctx.fillRect(
-					board.flip_x(this.legalmoves[i][0])*board_width/8 + board_offx + board_width/32, 
-					board.flip_y(this.legalmoves[i][1])*board_height/8 + board_offy + board_height/32, 
-					board_width/8 * 0.5, 
-					board_height/8 * 0.5);
-			}
+			board_ctx.globalAlpha = 0.8;
+			board_ctx.drawImage(images["pieces"], this.piece * 32, this.side * 32, 32, 32, bx*board_width/8 + board_offx, by*board_height/8 + board_offy, board_width/8, board_height/8);
 			board_ctx.globalAlpha = 1;
 		}
 	}
@@ -292,20 +148,22 @@ class Board
 		this.blackscore = 0;
 		this.facing_side = SIDE_WHITE;
 		this.logic = new LogicBoard();
-		this.logic.parent = this;
 		this.promotion_prompt = false;
 		this.move_from_x = -1;
 		this.move_from_y = -1;
 		this.move_to_x = -1;
 		this.move_to_y = -1;
-		this.enable_board = false;
-		this.disabled_side = -1;
+		this.enable_board = true;
 	}
 
 	flip()
 	{
 		this.facing_side = 1 - this.facing_side;
 	}
+
+
+	
+
 
 	reconstruct()
 	{
@@ -334,35 +192,33 @@ class Board
 	{
 		this.enable_board = false;
 		this.promotion_prompt = false;
-	}
-
-	update_board()
-	{
-		this.logic.compute_state();
-		if (this.logic.side_to_move > 2)
-		{
-			this.gameend();
-		}
-		p_status.innerHTML = GAMESTAT_DESC[this.logic.side_to_move];
-		p_pgn.innerHTML = "PGN:\n" + this.logic.pgn;
-		p_fen.innerHTML = "FEN:\n" + this.logic.get_fen();
-		this.reconstruct();
+		resetClocks();
 	}
 
 	complete_move()
 	{
-		if (gametype == GAMETYPE_JOIN)
-		{
-			peer_client_connection.send("move " + this.move_from_x + " " + this.move_from_y + " " + this.move_to_x + " " + this.move_to_y + " " + this.logic.promotion_choice);
-		}
-		if (gametype == GAMETYPE_HOST)
-		{
-			peer_connections[0].send("move " + this.move_from_x + " " + this.move_from_y + " " + this.move_to_x + " " + this.move_to_y + " " + this.logic.promotion_choice + " " + this.logic.whitetime_ms + " " + this.logic.blacktime_ms);
-		}
+			if (this.logic.side_to_move === SIDE_WHITE) {
+                startWhiteClock();
+                stopBlackClock();
+            } else if (this.logic.side_to_move === SIDE_BLACK) {
+                startBlackClock();
+                stopWhiteClock();
+            }
+		//stockfish.postMessage("position fen \"" + this.logic.get_fen() + "\"");
+		//stockfish.postMessage("go");
 		this.promotion_prompt = false;
 		this.logic.move_piece(this.move_from_x, this.move_from_y, this.move_to_x, this.move_to_y);
-		this.update_board();
+		this.logic.compute_state();
+		p_status.innerHTML = GAMESTAT_DESC[this.logic.side_to_move];
+		p_pgn.innerHTML = "PGN:\n" + this.logic.pgn;
+		p_fen.innerHTML = "FEN:\n" + this.logic.get_fen();
+		if (this.logic.side_to_move > 2)
+		{
+			this.gameend();
+		}
+		this.reconstruct();
 	}
+	
 
 	moved_piece(p)
 	{
@@ -420,6 +276,7 @@ class Board
 		this.reconstruct();
 		this.logic.compute_state();
 		p_status.innerHTML = GAMESTAT_DESC[this.logic.side_to_move];
+	
 	}
 	
 	reset_stockfish()
@@ -516,27 +373,6 @@ class Board
 		}
 		return null;
 	}
-
-	draw_time()
-	{
-		board_ctx.font = "21px serif";
-		board_ctx.textAlign = "center";
-		board_ctx.textBaseline = "middle";
-		if (this.facing_side == SIDE_WHITE)
-		{
-			board_ctx.fillStyle = "white";
-			board_ctx.fillText(format_time(this.logic.whitetime_ms), board_offx + 50, board_offy + board_height + 30);
-			board_ctx.fillStyle = "black";
-			board_ctx.fillText(format_time(this.logic.blacktime_ms), board_offx + 50, board_offy - 30);
-		}
-		else
-		{
-			board_ctx.fillStyle = "white";
-			board_ctx.fillText(format_time(this.logic.whitetime_ms), board_offx + 50, board_offy - 30);
-			board_ctx.fillStyle = "black";
-			board_ctx.fillText(format_time(this.logic.blacktime_ms), board_offx + 50, board_offy + board_height + 30);
-		}
-	}
 	
 	draw_board()
 	{
@@ -586,12 +422,12 @@ class Board
 		}
 	}
 
-	draw_legalmoves()
+	draw_dim()
 	{
-		for (const p of this.pieces)
-		{
-			p.draw_legal(this);
-		}
+		board_ctx.fillStyle = "#000000";
+		board_ctx.globalAlpha = board_promotionalpha;
+		board_ctx.fillRect(0, 0, board_canvas.width, board_canvas.height);
+		board_ctx.globalAlpha = 1.0;
 	}
 
 	draw_promotion()
@@ -658,17 +494,10 @@ class Board
 				this.logic.promotion_choice = pieces[i];
 				this.complete_move();
 			}
-			const w = images["pieces"].width;
-			const h = images["pieces"].height;
-			board_ctx.drawImage(images["pieces"], 
-				pieces[i] * w / 6, 
-				this.logic.side_to_move * h / 2, 
-				w / 6, 
-				h / 2, 
+			board_ctx.drawImage(images["pieces"], pieces[i] * 32, this.logic.side_to_move * 32, 32, 32, 
 				promote_x + board_promote_margin, 
 				promote_y + board_promote_margin, 
-				board_width/8, 
-				board_height/8);
+				board_width/8, board_height/8);
 			promote_x += promote_w;
 		}
 		board_ctx.globalAlpha = 1.0;
@@ -676,10 +505,12 @@ class Board
 	
 	draw()
 	{
-		this.draw_time();
 		this.draw_board();
 		this.draw_pieces();
-		this.draw_legalmoves();
+		if (!this.enable_board)
+		{
+			this.draw_dim();
+		}
 		if (this.promotion_prompt)
 		{
 			this.draw_promotion();
@@ -698,10 +529,6 @@ function canvas_on_mouse_down(e)
 		return;
 	}
 	if (!board.enable_board)
-	{
-		return;
-	}
-	if (board.disabled_side == board.logic.side_to_move)
 	{
 		return;
 	}
@@ -733,269 +560,15 @@ function canvas_on_mouse_up(e)
 	board.unlift_all();
 }
 
-function switchmenu()
-{
-	if (menu == MENU_GAMING)
-	{
-		board.enable_board = true;
-	}
-	else
-	{
-		board.enable_board = false;
-	}
-	switch (menu)
-	{
-	case MENU_GAMING:
-		d_mainmenu.hidden = true;
-		d_localoptions.hidden = true;
-		d_botoptions.hidden = true;
-		d_hostoptions.hidden = true;
-		d_joinoptions.hidden = true;
-		d_working.hidden = true;
-		break;
-
-	case MENU_MAINMENU:
-		d_mainmenu.hidden = false;
-		d_localoptions.hidden = true;
-		d_botoptions.hidden = true;
-		d_hostoptions.hidden = true;
-		d_joinoptions.hidden = true;
-		d_working.hidden = true;
-		h1_title.innerHTML = window.location.host;
-		break;
-
-	case MENU_LOCALOPTIONS:
-		d_mainmenu.hidden = true;
-		d_localoptions.hidden = false;
-		d_botoptions.hidden = true;
-		d_hostoptions.hidden = true;
-		d_joinoptions.hidden = true;
-		d_working.hidden = true;
-		break;
-
-	case MENU_BOTOPTIONS:
-		d_mainmenu.hidden = true;
-		d_localoptions.hidden = true;
-		d_botoptions.hidden = false;
-		d_hostoptions.hidden = true;
-		d_joinoptions.hidden = true;
-		d_working.hidden = true;
-		break;
-
-	case MENU_HOSTOPTIONS:
-		d_mainmenu.hidden = true;
-		d_localoptions.hidden = true;
-		d_botoptions.hidden = true;
-		d_hostoptions.hidden = false;
-		d_joinoptions.hidden = true;
-		d_working.hidden = true;
-		break;
-
-	case MENU_JOINOPTIONS:
-		d_mainmenu.hidden = true;
-		d_localoptions.hidden = true;
-		d_botoptions.hidden = true;
-		d_hostoptions.hidden = true;
-		d_joinoptions.hidden = false;
-		d_working.hidden = true;
-		btn_join.disabled = !check_id(in_code.value);
-		break;
-
-	case MENU_WORKING:
-		d_mainmenu.hidden = true;
-		d_localoptions.hidden = true;
-		d_botoptions.hidden = true;
-		d_hostoptions.hidden = true;
-		d_joinoptions.hidden = true;
-		d_working.hidden = false;
-		break;
-	}
-}
-
 function draw()
 {
-	switchmenu();
 	board_ctx.clearRect(0, 0, board_canvas.width, board_canvas.height);
 	board.draw();
-	board.logic.heartbeat();
 
 	mouse_button = false;
 
 	window.requestAnimationFrame(draw);
 }
-
-function button_playlocal()
-{
-	menu = MENU_LOCALOPTIONS;
-}
-
-function button_playbot()
-{
-	menu = MENU_BOTOPTIONS;
-}
-
-function button_host()
-{
-	menu = MENU_HOSTOPTIONS;
-}
-
-function button_join()
-{
-	menu = MENU_JOINOPTIONS;
-}
-
-function button_back()
-{
-	menu = MENU_MAINMENU;
-}
-
-function button_go_local()
-{
-	menu = MENU_GAMING;
-	board.logic.timecontrol_initialms = parse_time(in_local_time_inital.value);
-	board.logic.timecontrol_addms = parse_time(in_local_time_increment.value);
-	board.reset();
-}
-
-function button_go_bot()
-{
-	menu = MENU_GAMING;
-	board.logic.timecontrol_initialms = parse_time(in_bot_time_inital.value);
-	board.logic.timecontrol_addms = parse_time(in_bot_time_increment.value);
-	board.reset();
-}
-
-function button_go_host()
-{
-	menu = MENU_WORKING;
-	board.logic.timecontrol_initialms = parse_time(in_host_time_inital.value);
-	board.logic.timecontrol_addms = parse_time(in_host_time_increment.value);
-	board.reset();
-	peer_connections = new Array();
-	peer_self_id = make_id();
-	peer_host = new Peer("CHESSGAME_HOST" + peer_self_id);
-	peer_host.on("open", () =>
-	{
-		h1_title.innerHTML = window.location.host + "/?" + peer_self_id;
-		peer_host.on("connection", (conn) => 
-		{
-			conn.on("open", (id) => 
-			{
-				var side = SIDE_WHITE;
-				menu = MENU_GAMING;
-				gametype = GAMETYPE_HOST;
-				peer_connections.push(conn);
-				if (peer_connections.length == 1)
-				{
-					console.log("SENDING CONNECT");
-					board.reset();
-					board.facing_side = side;
-					board.disabled_side = 1-side;
-					conn.on("data", (data) =>
-					{
-						console.log("server got data " + data);
-						const words = data.split(" ");
-						console.log(words);
-						if (words[0] == "move")
-						{
-							board.move_from_x = Number(words[1]);
-							board.move_from_y = Number(words[2]);
-							board.move_to_x = Number(words[3]);
-							board.move_to_y = Number(words[4]);
-							board.logic.promotion_choice = Number(words[5]);
-							board.logic.move_piece(board.move_from_x, board.move_from_y, board.move_to_x, board.move_to_y);
-							board.update_board();
-						}
-					});
-					conn.on("error", (error) =>
-					{
-						console.log("ERROR" + error);
-					});
-					conn.on("close", () =>
-					{
-						console.log("CLOSE");
-					});
-					conn.send("connect " + (1-side) + " " + GAMETYPE_JOIN + " " + board.logic.timecontrol_initialms + " " + board.logic.timecontrol_addms);
-				}
-				else
-				{
-					conn.send("connect " + side + " " + GAMETYPE_JOIN + " " + board.logic.timecontrol_initialms + " " + board.logic.timecontrol_addms);
-				}
-			});
-		});
-	});
-}
-
-function button_go_join()
-{
-	menu = MENU_WORKING;
-	board.reset();
-	peer_connections = new Array();
-	peer_self_id = make_id();
-	peer_host = new Peer("CHESSGAME_JOIN" + peer_self_id);
-	peer_host.on("open", () =>
-	{
-		peer_client_connection = peer_host.connect("CHESSGAME_HOST" + in_code.value, {reliable: true});
-		peer_client_connection.on("open", (id) =>
-		{
-			console.log("CLIENT OPEN");
-			peer_client_connection.on("data", (data) =>
-			{
-				console.log("client got data " + data);
-				const words = data.split(" ");
-				console.log(words);
-				if (words[0] == "connect")
-				{
-					var side = words[1];
-					board.logic.timecontrol_initialms = Number(words[3]);
-					board.logic.timecontrol_addms = Number(words[4]);
-					board.reset();
-					board.facing_side = side;
-					board.disabled_side = 1-side;
-					menu = MENU_GAMING;
-					gametype = GAMETYPE_JOIN;
-				}
-				else if (words[0] == "move")
-				{
-					board.logic.whitetime_ms = Number(words[6]);
-					board.logic.blacktime_ms = Number(words[7]);
-					board.move_from_x = Number(words[1]);
-					board.move_from_y = Number(words[2]);
-					board.move_to_x = Number(words[3]);
-					board.move_to_y = Number(words[4]);
-					board.logic.promotion_choice = Number(words[5]);
-					board.logic.move_piece(board.move_from_x, board.move_from_y, board.move_to_x, board.move_to_y);
-					board.update_board();
-				}
-			});
-		});
-		peer_client_connection.on("close", () =>
-		{
-			console.log("CLOSE");
-			menu = MENU_MAINMENU;
-			in_code.value = "";
-		});
-		peer_client_connection.on("error", (error) =>
-		{
-			console.log("CLOSE " + error);
-			menu = MENU_MAINMENU;
-			in_code.value = "";
-		});
-	});
-	peer_host.on("disconnected", () =>
-	{
-		console.log("DISCONNECT");
-		menu = MENU_MAINMENU;
-		in_code.value = "";
-	});
-	peer_host.on("error", (err) =>
-	{
-		console.log("ERROR " + err);
-		menu = MENU_MAINMENU;
-		in_code.value = "";
-	});
-}
-
 
 function load_image(name, src)
 {
@@ -1055,7 +628,7 @@ function init_debug()
 	};
 	document.getElementById("rightcol").appendChild(b_flipboard);
 	document.getElementById("rightcol").appendChild(document.createElement("br"));
-	//document.getElementById("rightcol").appendChild(b_resetboard);
+	document.getElementById("rightcol").appendChild(b_resetboard);
 	document.getElementById("rightcol").appendChild(document.createElement("br"));
 }
 
@@ -1069,7 +642,6 @@ function init_stockfish()
 
 function init()
 {
-	h1_title.innerHTML = window.location.host;
 	board_canvas = document.createElement("canvas");
 	board_canvas.width = board_width + 100;
 	board_canvas.height = board_height + 200;
@@ -1087,13 +659,134 @@ function init()
 	init_images();
 	init_stockfish();
 	board.reset_stockfish();
-	const id = window.location.search.substring(1);
-	if (window.location.search != "" && check_id(id))
-	{
-		h1_title.innerHTML = window.location.host + "/?" + id;
-		in_code.value = id;
-		button_go_join();
-	}
 }
 
+
+
+
+
+function startWhiteClock() {
+	// Get the white clock element
+	const whiteClock = document.querySelector('.white-clock .clock-time');
+  
+	// Set the initial time to 10 minutes
+
+  
+	// Update the clock display every second for the white clock
+	const intervalId = setInterval(() => {
+	  // Decrement the seconds
+	  whiteSeconds--;
+	  if (whiteSeconds < 0) {
+		// If seconds reach 0, decrement the minutes
+		whiteMinutes--;
+		whiteSeconds = 59;
+	  }
+  
+	  // Update the clock display for the white clock
+	  whiteClock.textContent = `${whiteMinutes.toString().padStart(2, '0')}:${whiteSeconds.toString().padStart(2, '0')}`;
+  
+	  // If minutes and seconds reach 0 for the white clock, stop the interval
+	  if (whiteMinutes === 0 && whiteSeconds === 0) {
+		clearInterval(intervalId);
+	  }
+	}, 1000);
+  }
+  
+// Store the interval IDs for the white and black clocks
+let whiteIntervalId;
+let blackIntervalId;
+
+let whiteClockStarted = false;
+let blackClockStarted = false;
+let whiteMinutes = 0;
+let whiteSeconds = 10;
+let blackMinutes = 0;
+let blackSeconds = 10;
+
+function startWhiteClock() {
+	if (!whiteClockStarted) {
+	  // Set the initial time to 10 minutes
+	  whiteClockStarted = true;
+	}
+  
+	const whiteClock = document.querySelector('.white-clock .clock-time');
+  
+	// Update the clock display every second for the white clock
+	whiteIntervalId = setInterval(() => {
+	  // Decrement the seconds
+	  whiteSeconds--;
+	  if (whiteSeconds < 0) {
+		// If seconds reach 0, decrement the minutes
+		whiteMinutes--;
+		whiteSeconds = 59;
+	  }
+  
+	  // Update the clock display for the white clock
+	  whiteClock.textContent = `${whiteMinutes.toString().padStart(2, '0')}:${whiteSeconds.toString().padStart(2, '0')}`;
+  
+	}, 1000);
+  }
+
+  function startBlackClock() {
+	if (!blackClockStarted) {
+	  // Set the initial time to 10 minutes
+	  blackClockStarted = true;
+	}
+  
+	const blackClock = document.querySelector('.black-clock .clock-time');
+  
+	// Update the clock display every second for the black clock
+	blackIntervalId = setInterval(() => {
+	  // Decrement the seconds
+	  blackSeconds--;
+	  if (blackSeconds < 0) {
+		// If seconds reach 0, decrement the minutes
+		blackMinutes--;
+		blackSeconds = 59;
+	  }
+  
+	  // Update the clock display for the black clock
+	  blackClock.textContent = `${blackMinutes.toString().padStart(2, '0')}:${blackSeconds.toString().padStart(2, '0')}`;
+  
+	  // If minutes and seconds reach 0 for the black clock, set the game status to "Timeout!\nWhite wins."
+	  // and stop both clocks
+	}, 1000);
+  }
+
+function stopWhiteClock() {
+  // Use clearInterval() to stop the white clock interval
+  clearInterval(whiteIntervalId);
+}
+
+function stopBlackClock() {
+  // Use clearInterval() to stop the black clock interval
+  clearInterval(blackIntervalId);
+}
+
+
+  
+let resetCount = 0;
+
+function resetClocks() {
+  // Reset the clock times
+  whiteMinutes = 10;
+  whiteSeconds = 0;
+  blackMinutes = 10;
+  blackSeconds = 0;
+
+  // Stop the clock intervals
+  whiteClock.stop();
+  blackClock.stop();
+
+  // Update the clock display
+  updateClockDisplay(whiteClock, whiteClockElement);
+  updateClockDisplay(blackClock, blackClockElement);
+
+  // Increment the reset count and check if it's greater than 0
+  resetCount++;
+  if (resetCount > 0) {
+    whiteClockStarted = true;
+    blackClockStarted = true;
+  }
+}
 init();
