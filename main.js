@@ -1,3 +1,4 @@
+@@ -0,0 +1,1098 @@
 const p_status = document.getElementById("p_status");
 const p_fen = document.getElementById("p_fen");
 const p_pgn = document.getElementById("p_pgn");
@@ -1094,14 +1095,5 @@ function init()
 		button_go_join();
 	}
 }
-
-
-
-
-
-
-
-
-
 
 init();
