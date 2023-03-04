@@ -32,10 +32,9 @@ body {
   }
   
   .row {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	align-items: center;
+	display: block;
+	width: 100%;
+	text-align: center;
   }
   
   h1 {
@@ -90,14 +89,15 @@ body {
 	background-color: #686868;
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: space-between;
+	justify-content: center; /* center horizontally */
 	align-items: center;
 	padding: 20px;
 	width: 100%;
 	max-width: 600px; /* adjust as needed */
 	margin: 0 auto; /* center horizontally */
-	
   }
+	
+  
   #d_mainmenu, #d_localoptions, #d_botoptions, #d_hostoptions, #d_joinoptions, #d_working {
 	text-align: center;
 	margin-top: 20px;
@@ -184,11 +184,4 @@ body {
 		  padding: 8px 16px;
 		}
 	  }
-
-
-
-	
-
-
-
 	
