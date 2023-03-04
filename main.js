@@ -1095,12 +1095,4 @@ function init()
 	}
 }
 
-
-
-
-
-
-
-
-
 init();
