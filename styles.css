@@ -4,6 +4,7 @@ body {
 	font-size: 16px;
 	line-height: 1.5;
   }
+
   
   .container {
 	max-width: 960px;
@@ -27,9 +28,7 @@ body {
 	flex-basis: calc(25% - 10px);
   }
   
-  .col#centercol {
-	flex-basis: 50%;
-  }
+
   
   .row {
 	display: block;
@@ -86,17 +85,15 @@ body {
   }
   
   #centercol {
-	background-color: #686868;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center; 
-	align-items: center;
-	padding: 20px;
-	width: 100%;
-	max-width: 540px; 
-	margin: 0 auto; 
-	padding-right: 20px;
-  }
+    background-color: #686868;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; 
+    align-items: center;
+    padding: 20px 20px; /* add padding to top/bottom and left/right */
+    margin: 0 auto; 
+    max-width: 600px; 
+}
   
   #d_mainmenu, #d_localoptions, #d_botoptions, #d_hostoptions, #d_joinoptions, #d_working {
 	text-align: center;
