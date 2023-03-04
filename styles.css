@@ -18,7 +18,7 @@ body {
 	flex-basis: calc(25% - 20px);
 	margin: 10px;
 	background-color: #aca3a3;
-	box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+	box-shadow: 0 2px 5px rgba(187, 29, 29, 0.1);
 	border-radius: 4px;
 	overflow: hidden;
   }
@@ -51,7 +51,7 @@ body {
   button {
 	display: block;
 	margin: 10px auto;
-	padding: 10px 20px;
+	padding: 10px;
 	font-size: 18px;
 	font-weight: bold;
 	text-transform: uppercase;
@@ -89,30 +89,26 @@ body {
 	background-color: #686868;
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: center; /* center horizontally */
+	justify-content: center; 
 	align-items: center;
 	padding: 20px;
 	width: 100%;
-	max-width: 565px; /* adjust as needed */
-	margin: 0 auto; /* center horizontally */
+	max-width: 575px; 
+	margin: 0 auto; 
+	padding-right: 20px;
   }
-	
   
   #d_mainmenu, #d_localoptions, #d_botoptions, #d_hostoptions, #d_joinoptions, #d_working {
 	text-align: center;
-	margin-top: 20px;
 	margin-bottom: 20px;
 	}
 	
-	.centerdiv {
-	grid-column: 1;
-	grid-row: 1;
-	background: rgba(0, 0, 0, 0.7);
-	z-index: 5;
-	padding: 10px;
-	border-radius: 5px;
-	color: #ffffff;
-	}
+	/*.centerdiv {
+		background: rgba(0, 0, 0, 0.7);
+		padding: 10px;
+		border-radius: 5px;
+		color: #ffffff;
+	}*/
 	
 	canvas {
 	grid-column: 1;
@@ -132,7 +128,6 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 999;
 	  }
 	
 	.mainmenubutton:hover {
@@ -184,4 +179,7 @@ body {
 		  padding: 8px 16px;
 		}
 	  }
+
+
+
 	
